@@ -3,6 +3,9 @@
 local LEVEL_ID = "modders_devmap"
 local JOB_ID   = "modders_devmap"
 
+local auto_start_requested = false
+local auto_start_hook_registered = false
+
 Hooks:Add("MenuManagerBuildCustomMenus", "ProvingGrounds_Quickstart_BuildMenu", function(menu_manager, nodes)
 	if not nodes.main then
 		return
@@ -48,7 +51,7 @@ function MenuCallbackHandler:start_proving_grounds()
 	-- Game Settings vollständig setzen
 	Global.game_settings.single_player = true
 	Global.game_settings.team_ai = true
-	Global.game_settings.team_ai_option = 2
+	Global.game_settings.team_ai_option = math.min(Global.game_settings.team_ai_option or 1, 1)
 	Global.game_settings.permission = "private"
 	Global.game_settings.drop_in_allowed = false
 	Global.game_settings.level_id = LEVEL_ID
@@ -66,6 +69,24 @@ function MenuCallbackHandler:start_proving_grounds()
 
 	-- Netzwerk hosten
 	managers.network:host_game()
+	Network:set_server()
+
+	-- mission "none" -> nil, wie Vanilla start_the_game es macht
+	local mission = Global.game_settings.mission ~= "none" and Global.game_settings.mission or nil
+
+	-- Ready-Screen nur beim ersten Start ueberspringen
+	auto_start_requested = true
+
+	if not auto_start_hook_registered then
+		auto_start_hook_registered = true
+		Hooks:PostHook(IngameWaitingForPlayersState, "at_enter", "ProvingGroundsQuickstartAutoStart", function(self)
+			if auto_start_requested then
+				auto_start_requested = false
+				-- skips the ready/loading menu (Verhalten des -auto_enter_level Arguments)
+				self:start_game_intro()
+			end
+		end)
+	end
 
 	-- Level-Daten holen
 	local level_data = tweak_data.levels[LEVEL_ID]
@@ -76,7 +97,7 @@ function MenuCallbackHandler:start_proving_grounds()
 	if session then
 		session:load_level(
 			world_name,
-			Global.game_settings.mission,
+			mission,
 			Global.game_settings.world_setting,
 			nil,
 			LEVEL_ID
