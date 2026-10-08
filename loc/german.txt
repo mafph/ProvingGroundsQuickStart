@@ -1,0 +1,22 @@
+{
+	"pg_menu_title": "Proving Grounds Quickstart",
+	"pg_menu_desc": "Einstellungen für den Proving-Grounds-Schnellstart.",
+	"pg_skip_ready_title": "Ready-Screen überspringen",
+	"pg_skip_ready_desc": "Überspringt den Ready-/Lade-Screen automatisch beim ersten Start. Beim Ingame-Restart bleibt der normale Ready-Screen erhalten.",
+	"pg_difficulty_title": "Schwierigkeit",
+	"pg_difficulty_desc": "Schwierigkeit für den Levelstart.",
+	"pg_difficulty_normal": "Normal",
+	"pg_difficulty_hard": "Schwer",
+	"pg_difficulty_very_hard": "Sehr schwer",
+	"pg_difficulty_overkill": "Overkill",
+	"pg_difficulty_easy_wish": "Mayhem",
+	"pg_difficulty_death_wish": "Death Wish",
+	"pg_difficulty_sm_wish": "Death Sentence",
+	"pg_one_down_title": "One Down",
+	"pg_one_down_desc": "One-Down-Modus aktivieren.",
+	"pg_team_ai_title": "Team-KI",
+	"pg_team_ai_desc": "KI-Teammitglieder beim Start hinzufügen.",
+	"pg_reset_title": "Auf Standard zurücksetzen",
+	"pg_reset_desc": "Setzt alle Einstellungen auf die Standardwerte zurück.",
+	"pg_reset_done": "Einstellungen zurückgesetzt."
+}
