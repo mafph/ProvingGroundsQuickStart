@@ -1,7 +1,7 @@
 {
-	"name": "Proving Grounds Quickstart",
+	"name": "Map Quickstart",
 	"description": "Adds a main menu button that quick launches a selected map (skips the ready screen on first start).",
-	"author": "You",
+	"author": "I AM GREEN",
 	"version": "1.1",
 	"blt_version": 2,
 	"hooks": [
@@ -12,6 +12,10 @@
 		{
 			"hook_id": "lib/managers/menumanager",
 			"script_path": "lua/settings/menu.lua"
+		},
+		{
+			"hook_id": "lib/states/ingamewaitingforplayers",
+			"script_path": "lua/states.lua"
 		}
 	]
 }

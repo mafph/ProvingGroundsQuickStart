@@ -2,11 +2,16 @@
 
 local DEFAULT_LEVEL_ID = "modders_devmap"
 
-local auto_start_requested = false
-local auto_start_hook_registered = false
-
 local function error_dialog(text)
 	managers.menu:show_error_dialog({ title = managers.localization:text("pg_quicklaunch"), text = text })
+end
+
+local function mod_settings()
+	return (_G.ProvingGroundsQuickstartSettings or {}).settings or {}
+end
+
+local function pgqs_log(msg)
+	log("[PGQS] " .. msg)
 end
 
 Hooks:Add("MenuManagerBuildCustomMenus", "ProvingGrounds_Quickstart_BuildMenu", function(menu_manager, nodes)
@@ -56,7 +61,8 @@ function MenuCallbackHandler:start_proving_grounds()
 	end
 
 	-- Apply game settings (defaults match the previous behaviour)
-	Global.game_settings.single_player = not s.online
+	local single_player = not s.online
+	Global.game_settings.single_player = single_player
 	Global.game_settings.team_ai = s.team_ai ~= false
 	Global.game_settings.team_ai_option = s.team_ai ~= false and 1 or 0
 	Global.game_settings.permission = s.online and "public" or "private"
@@ -74,21 +80,21 @@ function MenuCallbackHandler:start_proving_grounds()
 	-- mission "none" -> nil (as vanilla start_the_game does)
 	local mission = Global.game_settings.mission ~= "none" and Global.game_settings.mission or nil
 
-	-- Skip the ready screen on first start only
-	if s.skip_ready ~= false then
-		auto_start_requested = true
+	-- Skip the ready screen only for a solo quick launch. The "game" script
+	-- instance reads this marker inside at_enter (see lua/states.lua) - a
+	-- plain Lua Global does not survive across the menu/game instances.
+	if s.skip_ready ~= false and single_player then
+		local f = io.open("mods/saves/pgqs_pending_auto_enter.dat", "w")
+		if f then
+			f:write("1")
+			f:close()
+			pgqs_log("skip marker written")
+		else
+			pgqs_log("skip marker write FAILED")
+		end
 	end
 
-	if not auto_start_hook_registered then
-		auto_start_hook_registered = true
-		Hooks:PostHook(IngameWaitingForPlayersState, "at_enter", "ProvingGroundsQuickstartAutoStart", function(self)
-			if auto_start_requested then
-				auto_start_requested = false
-				-- skips the ready/loading menu (equivalent to the -auto_enter_level argument)
-				self:start_game_intro()
-			end
-		end)
-	end
+	pgqs_log("quicklaunch level=" .. tostring(job_id) .. " skip_ready=" .. tostring(s.skip_ready))
 
 	-- Load directly, bypassing the broken part in start_single_player_job
 	local session = managers.network:session()
