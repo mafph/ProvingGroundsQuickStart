@@ -67,6 +67,7 @@ Hooks:Add("MenuManagerInitialize", "ProvingGroundsQuickstart_callbacks", functio
 	MenuCallbackHandler.pg_set_difficulty = choice("difficulty")
 	MenuCallbackHandler.pg_set_one_down = toggle("one_down")
 	MenuCallbackHandler.pg_set_team_ai = toggle("team_ai")
+	MenuCallbackHandler.pg_set_online = toggle("online")
 	MenuCallbackHandler.pg_reset = function()
 		for k, v in pairs(T.defaults) do
 			T.settings[k] = v
@@ -112,6 +113,7 @@ Hooks:Add("MenuManagerPopulateCustomMenus", "ProvingGroundsQuickstart_populate",
 	add_choice("difficulty", { value = s.difficulty, items = DIFFICULTY_KEYS, item_values = DIFFICULTY_IDS, localized_items = true, priority = 99 })
 	add_toggle("one_down", { value = s.one_down, priority = 98 })
 	add_toggle("team_ai", { value = s.team_ai, priority = 97 })
+	add_toggle("online", { value = s.online, priority = 96 })
 	MenuHelper:AddButton({ id = "pg_reset", title = "pg_reset_title", desc = "pg_reset_desc", callback = "pg_reset", menu_id = MENU, priority = 10 })
 end)
 

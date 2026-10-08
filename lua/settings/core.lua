@@ -13,7 +13,8 @@ T.defaults = {
 	skip_ready = true,
 	difficulty = "normal",
 	one_down = false,
-	team_ai = true
+	team_ai = true,
+	online = false
 }
 
 T.settings = {}

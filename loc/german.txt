@@ -16,6 +16,8 @@
 	"pg_one_down_desc": "One-Down-Modus aktivieren.",
 	"pg_team_ai_title": "Team-KI",
 	"pg_team_ai_desc": "KI-Teammitglieder beim Start hinzufügen.",
+	"pg_online_title": "Online hosten",
+	"pg_online_desc": "Spiel online hosten (öffentliche Lobby mit Drop-In). Ist die Option deaktiviert, wird ein privates Solo-Spiel gehostet.",
 	"pg_reset_title": "Auf Standard zurücksetzen",
 	"pg_reset_desc": "Setzt alle Einstellungen auf die Standardwerte zurück.",
 	"pg_reset_done": "Einstellungen zurückgesetzt."

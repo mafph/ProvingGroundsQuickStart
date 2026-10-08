@@ -6,6 +6,11 @@ local JOB_ID   = "modders_devmap"
 local auto_start_requested = false
 local auto_start_hook_registered = false
 
+local function mod_settings()
+	local S = _G.ProvingGroundsQuickstartSettings
+	return (S and S.settings) or nil
+end
+
 Hooks:Add("MenuManagerBuildCustomMenus", "ProvingGrounds_Quickstart_BuildMenu", function(menu_manager, nodes)
 	if not nodes.main then
 		return
@@ -48,17 +53,25 @@ function MenuCallbackHandler:start_proving_grounds()
 		return
 	end
 
+	-- Einstellungen aus dem Options-Menü lesen (Default = bisheriges Verhalten)
+	local s = mod_settings()
+	local skip_ready = not s or s.skip_ready ~= false
+	local difficulty = s and s.difficulty or "normal"
+	local one_down = s and s.one_down or false
+	local team_ai = not s or s.team_ai ~= false
+	local online = s and s.online or false
+
 	-- Game Settings vollständig setzen
-	Global.game_settings.single_player = true
-	Global.game_settings.team_ai = true
-	Global.game_settings.team_ai_option = math.min(Global.game_settings.team_ai_option or 1, 1)
-	Global.game_settings.permission = "private"
-	Global.game_settings.drop_in_allowed = false
+	Global.game_settings.single_player = not online
+	Global.game_settings.team_ai = team_ai
+	Global.game_settings.team_ai_option = team_ai and 1 or 0
+	Global.game_settings.permission = online and "public" or "private"
+	Global.game_settings.drop_in_allowed = online
 	Global.game_settings.level_id = LEVEL_ID
 	Global.game_settings.mission = managers.job:current_mission() or "none"
 	Global.game_settings.world_setting = managers.job:current_world_setting()
-	Global.game_settings.difficulty = "normal"
-	Global.game_settings.one_down = false
+	Global.game_settings.difficulty = difficulty
+	Global.game_settings.one_down = one_down
 	Global.game_settings.weekly_skirmish = false
 
 	-- Sicherstellen, dass current_level_id stimmt
@@ -75,7 +88,9 @@ function MenuCallbackHandler:start_proving_grounds()
 	local mission = Global.game_settings.mission ~= "none" and Global.game_settings.mission or nil
 
 	-- Ready-Screen nur beim ersten Start ueberspringen
-	auto_start_requested = true
+	if skip_ready then
+		auto_start_requested = true
+	end
 
 	if not auto_start_hook_registered then
 		auto_start_hook_registered = true

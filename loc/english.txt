@@ -16,6 +16,8 @@
 	"pg_one_down_desc": "Enable One Down mode.",
 	"pg_team_ai_title": "Team AI",
 	"pg_team_ai_desc": "Add AI teammates when starting.",
+	"pg_online_title": "Host online",
+	"pg_online_desc": "Host the game online (public lobby with drop-in). If disabled, a private solo game is hosted.",
 	"pg_reset_title": "Reset to defaults",
 	"pg_reset_desc": "Resets all settings to their default values.",
 	"pg_reset_done": "Settings reset."
