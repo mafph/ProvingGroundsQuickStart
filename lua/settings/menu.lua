@@ -28,6 +28,25 @@ for _, d in ipairs(DIFFICULTIES) do
 	table.insert(DIFFICULTY_KEYS, d[2])
 end
 
+local function level_list()
+	local list = {}
+	for job_id, job in pairs(tweak_data.narrative.jobs or {}) do
+		if type(job) == "table" and job.chain then
+			local name = job.name_id and managers.localization:text(job.name_id) or job_id
+			table.insert(list, { id = job_id, name = name })
+		end
+	end
+	table.sort(list, function(a, b)
+		return a.name < b.name
+	end)
+	local ids, items = {}, {}
+	for _, entry in ipairs(list) do
+		table.insert(ids, entry.id)
+		table.insert(items, entry.name)
+	end
+	return ids, items
+end
+
 local function refresh_active_menu(menu_id)
 	local menu = MenuHelper:GetMenu(menu_id)
 	if not (menu and menu._items) then
@@ -64,6 +83,7 @@ Hooks:Add("MenuManagerInitialize", "ProvingGroundsQuickstart_callbacks", functio
 	end
 
 	MenuCallbackHandler.pg_set_skip_ready = toggle("skip_ready")
+	MenuCallbackHandler.pg_set_level = choice("level")
 	MenuCallbackHandler.pg_set_difficulty = choice("difficulty")
 	MenuCallbackHandler.pg_set_one_down = toggle("one_down")
 	MenuCallbackHandler.pg_set_team_ai = toggle("team_ai")
@@ -108,7 +128,9 @@ end
 
 Hooks:Add("MenuManagerPopulateCustomMenus", "ProvingGroundsQuickstart_populate", function()
 	local s = T.settings
+	local level_ids, level_items = level_list()
 
+	add_choice("level", { value = s.level, items = level_items, item_values = level_ids, localized_items = false, priority = 101 })
 	add_toggle("skip_ready", { value = s.skip_ready, priority = 100 })
 	add_choice("difficulty", { value = s.difficulty, items = DIFFICULTY_KEYS, item_values = DIFFICULTY_IDS, localized_items = true, priority = 99 })
 	add_toggle("one_down", { value = s.one_down, priority = 98 })

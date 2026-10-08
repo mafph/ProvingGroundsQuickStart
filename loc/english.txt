@@ -1,6 +1,9 @@
 {
 	"pg_menu_title": "Proving Grounds Quickstart",
 	"pg_menu_desc": "Settings for the Proving Grounds quick start.",
+	"pg_quicklaunch": "Quicklaunch",
+	"pg_level_title": "Map",
+	"pg_level_desc": "Map to quick start.",
 	"pg_skip_ready_title": "Skip ready screen",
 	"pg_skip_ready_desc": "Automatically skips the ready/loading screen on first start. Restarting in-game keeps the normal ready screen.",
 	"pg_difficulty_title": "Difficulty",
@@ -20,5 +23,9 @@
 	"pg_online_desc": "Host the game online (public lobby with drop-in). If disabled, a private solo game is hosted.",
 	"pg_reset_title": "Reset to defaults",
 	"pg_reset_desc": "Resets all settings to their default values.",
-	"pg_reset_done": "Settings reset."
+	"pg_reset_done": "Settings reset.",
+	"pg_error_job_missing": "Job not found. Is the map installed and BeardLib active?",
+	"pg_error_job_activate": "Job could not be activated.",
+	"pg_error_level_missing": "Level not found.",
+	"pg_error_no_session": "Network session could not be created."
 }

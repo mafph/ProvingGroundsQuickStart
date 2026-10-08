@@ -1,6 +1,9 @@
 {
 	"pg_menu_title": "Proving Grounds Quickstart",
 	"pg_menu_desc": "Einstellungen für den Proving-Grounds-Schnellstart.",
+	"pg_quicklaunch": "Schnellstart",
+	"pg_level_title": "Karte",
+	"pg_level_desc": "Karte, die beim Schnellstart geladen wird.",
 	"pg_skip_ready_title": "Ready-Screen überspringen",
 	"pg_skip_ready_desc": "Überspringt den Ready-/Lade-Screen automatisch beim ersten Start. Beim Ingame-Restart bleibt der normale Ready-Screen erhalten.",
 	"pg_difficulty_title": "Schwierigkeit",
@@ -20,5 +23,9 @@
 	"pg_online_desc": "Spiel online hosten (öffentliche Lobby mit Drop-In). Ist die Option deaktiviert, wird ein privates Solo-Spiel gehostet.",
 	"pg_reset_title": "Auf Standard zurücksetzen",
 	"pg_reset_desc": "Setzt alle Einstellungen auf die Standardwerte zurück.",
-	"pg_reset_done": "Einstellungen zurückgesetzt."
+	"pg_reset_done": "Einstellungen zurückgesetzt.",
+	"pg_error_job_missing": "Job nicht gefunden. Ist die Map installiert und BeardLib aktiv?",
+	"pg_error_job_activate": "Job konnte nicht aktiviert werden.",
+	"pg_error_level_missing": "Level nicht gefunden.",
+	"pg_error_no_session": "Netzwerk-Session konnte nicht erstellt werden."
 }

@@ -10,6 +10,7 @@ T._path = ModPath
 T._save = SavePath .. "proving_grounds_quickstart_settings.json"
 
 T.defaults = {
+	level = "modders_devmap",
 	skip_ready = true,
 	difficulty = "normal",
 	one_down = false,

@@ -1,14 +1,12 @@
--- Proving Grounds Quickstart – sauberer Start
+-- Proving Grounds Quickstart - selected map quick launch + clean start
 
-local LEVEL_ID = "modders_devmap"
-local JOB_ID   = "modders_devmap"
+local DEFAULT_LEVEL_ID = "modders_devmap"
 
 local auto_start_requested = false
 local auto_start_hook_registered = false
 
-local function mod_settings()
-	local S = _G.ProvingGroundsQuickstartSettings
-	return (S and S.settings) or nil
+local function error_dialog(text)
+	managers.menu:show_error_dialog({ title = managers.localization:text("pg_quicklaunch"), text = text })
 end
 
 Hooks:Add("MenuManagerBuildCustomMenus", "ProvingGrounds_Quickstart_BuildMenu", function(menu_manager, nodes)
@@ -16,79 +14,68 @@ Hooks:Add("MenuManagerBuildCustomMenus", "ProvingGrounds_Quickstart_BuildMenu", 
 		return
 	end
 
+	-- Show the selected map as the button label
+	local s = mod_settings() or {}
+	local job_id = s.level or DEFAULT_LEVEL_ID
+	local job = tweak_data.narrative.jobs[job_id]
+	local map_name = (job and job.name_id and managers.localization:text(job.name_id)) or job_id
+
 	local params = {
 		name = "proving_grounds_quickstart",
-		text_id = "Proving Grounds",
+		text_id = managers.localization:text("pg_quicklaunch") .. ": " .. map_name,
 		localize = false,
 		callback = "start_proving_grounds",
 		font = tweak_data.menu.pd2_large_font,
 		font_size = 35
 	}
 
-	local data_node = {}
-	local new_item = nodes.main:create_item(data_node, params)
-	nodes.main:insert_item(new_item, 3)
+	nodes.main:insert_item(nodes.main:create_item({}, params), 3)
 end)
 
 function MenuCallbackHandler:start_proving_grounds()
-	-- Level vorhanden?
-	if not tweak_data.levels[LEVEL_ID] then
-		managers.menu:show_error_dialog({
-			title = "Proving Grounds",
-			text = "Level 'modders_devmap' wurde nicht gefunden.\nIst die Map korrekt im Ordner /maps und BeardLib aktiv?"
-		})
+	local s = mod_settings() or {}
+	local job_id = s.level or DEFAULT_LEVEL_ID
+
+	-- Validate job, level and settings
+	if not tweak_data.narrative.jobs[job_id] then
+		error_dialog(managers.localization:text("pg_error_job_missing") .. "\n'" .. tostring(job_id) .. "'")
 		return
 	end
 
-	-- Alten Job sauber beenden
 	managers.job:deactivate_current_job()
 
-	-- Job aktivieren (Narrative + Chain aus der main.xml)
-	local ok = managers.job:activate_job(JOB_ID)
-	if not ok then
-		managers.menu:show_error_dialog({
-			title = "Proving Grounds",
-			text = "Job 'modders_devmap' konnte nicht aktiviert werden."
-		})
+	if not managers.job:activate_job(job_id, 1) then
+		error_dialog(managers.localization:text("pg_error_job_activate") .. "\n'" .. tostring(job_id) .. "'")
 		return
 	end
 
-	-- Einstellungen aus dem Options-Menü lesen (Default = bisheriges Verhalten)
-	local s = mod_settings()
-	local skip_ready = not s or s.skip_ready ~= false
-	local difficulty = s and s.difficulty or "normal"
-	local one_down = s and s.one_down or false
-	local team_ai = not s or s.team_ai ~= false
-	local online = s and s.online or false
-
-	-- Game Settings vollständig setzen
-	Global.game_settings.single_player = not online
-	Global.game_settings.team_ai = team_ai
-	Global.game_settings.team_ai_option = team_ai and 1 or 0
-	Global.game_settings.permission = online and "public" or "private"
-	Global.game_settings.drop_in_allowed = online
-	Global.game_settings.level_id = LEVEL_ID
-	Global.game_settings.mission = managers.job:current_mission() or "none"
-	Global.game_settings.world_setting = managers.job:current_world_setting()
-	Global.game_settings.difficulty = difficulty
-	Global.game_settings.one_down = one_down
-	Global.game_settings.weekly_skirmish = false
-
-	-- Sicherstellen, dass current_level_id stimmt
-	if managers.job:current_level_id() ~= LEVEL_ID then
-		-- Fallback falls die Chain nicht greift
-		managers.job._global.current_job.current_stage = 1
+	local level_id = managers.job:current_level_id()
+	if not level_id or not tweak_data.levels[level_id] then
+		error_dialog(managers.localization:text("pg_error_level_missing") .. "\n'" .. tostring(job_id) .. "'")
+		return
 	end
 
-	-- Netzwerk hosten
+	-- Apply game settings (defaults match the previous behaviour)
+	Global.game_settings.single_player = not s.online
+	Global.game_settings.team_ai = s.team_ai ~= false
+	Global.game_settings.team_ai_option = s.team_ai ~= false and 1 or 0
+	Global.game_settings.permission = s.online and "public" or "private"
+	Global.game_settings.drop_in_allowed = s.online
+	Global.game_settings.level_id = level_id
+	Global.game_settings.mission = managers.job:current_mission() or "none"
+	Global.game_settings.world_setting = managers.job:current_world_setting()
+	Global.game_settings.difficulty = s.difficulty or "normal"
+	Global.game_settings.one_down = s.one_down or false
+	Global.game_settings.weekly_skirmish = false
+
 	managers.network:host_game()
 	Network:set_server()
 
-	-- mission "none" -> nil, wie Vanilla start_the_game es macht
+	-- mission "none" -> nil (as vanilla start_the_game does)
 	local mission = Global.game_settings.mission ~= "none" and Global.game_settings.mission or nil
 
-	-- Ready-Screen nur beim ersten Start ueberspringen
-	if skip_ready then
+	-- Skip the ready screen on first start only
+	if s.skip_ready ~= false then
 		auto_start_requested = true
 	end
 
@@ -97,30 +84,24 @@ function MenuCallbackHandler:start_proving_grounds()
 		Hooks:PostHook(IngameWaitingForPlayersState, "at_enter", "ProvingGroundsQuickstartAutoStart", function(self)
 			if auto_start_requested then
 				auto_start_requested = false
-				-- skips the ready/loading menu (Verhalten des -auto_enter_level Arguments)
+				-- skips the ready/loading menu (equivalent to the -auto_enter_level argument)
 				self:start_game_intro()
 			end
 		end)
 	end
 
-	-- Level-Daten holen
-	local level_data = tweak_data.levels[LEVEL_ID]
-	local world_name = level_data and level_data.world_name or LEVEL_ID
-
-	-- Direkt laden (umgeht den fehlerhaften Teil in start_single_player_job)
+	-- Load directly, bypassing the broken part in start_single_player_job
 	local session = managers.network:session()
 	if session then
+		local level_data = tweak_data.levels[level_id]
 		session:load_level(
-			world_name,
+			level_data and level_data.world_name or level_id,
 			mission,
 			Global.game_settings.world_setting,
 			nil,
-			LEVEL_ID
+			level_id
 		)
 	else
-		managers.menu:show_error_dialog({
-			title = "Proving Grounds",
-			text = "Netzwerk-Session konnte nicht erstellt werden."
-		})
+		error_dialog(managers.localization:text("pg_error_no_session"))
 	end
 end
