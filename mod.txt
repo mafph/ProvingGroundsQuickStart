@@ -2,7 +2,7 @@
 	"name": "Map Quickstart",
 	"description": "Adds a main menu button that quick launches a selected map (skips the ready screen on first start).",
 	"author": "I AM GREEN",
-	"version": "1.1",
+	"version": "1.2",
 	"blt_version": 2,
 	"updates": [
 		{
