@@ -6,8 +6,10 @@
 	"blt_version": 2,
 	"updates": [
 		{
-			"provider": "mws",
-			"identifier": "58972"
+			"identifier": "MapQuickstart",
+			"host": {
+				"meta": "https://github.com/mafph/ProvingGroundsQuickStart/releases/latest/download/meta.json"
+			}
 		}
 	],
 	"hooks": [

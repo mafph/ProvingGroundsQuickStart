@@ -1,0 +1,43 @@
+name: Release
+
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Update meta.json
+        run: |
+          TAG=${GITHUB_REF_NAME#v}
+          jq -n --arg version "$TAG" \
+             --arg patchnotes "https://github.com/${GITHUB_REPOSITORY}/releases/tag/v${TAG}" \
+             --arg download "https://github.com/${GITHUB_REPOSITORY}/releases/download/v${TAG}/ProvingGroundsQuickStart_${GITHUB_REF_NAME}.zip" \
+             '[{ident: "MapQuickstart", version: $version, patchnotes_url: $patchnotes, download_url: $download}]' \
+             > meta.json
+          cat meta.json
+
+      - name: Create mod folder
+        run: |
+          mkdir -p build/ProvingGroundsQuickStart
+          cp -r lua loc mod.txt build/ProvingGroundsQuickStart/
+
+      - name: Zip mod folder
+        run: |
+          cd build
+          zip -r ../ProvingGroundsQuickStart_${GITHUB_REF_NAME}.zip ProvingGroundsQuickStart
+          cd ..
+
+      - name: Upload release assets
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            ProvingGroundsQuickStart_${{ github.ref_name }}.zip
+            meta.json
+          token: ${{ secrets.RELEASE_TOKEN }}
